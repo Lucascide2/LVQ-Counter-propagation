@@ -8,9 +8,9 @@ def main():
 if __name__ == "__main__":
     np.random.seed(42)
  
-    # --- Dados de exemplo: 2 classes, saídas one-hot ---
-    # Classe 0 → y = [1, 0]
-    # Classe 1 → y = [0, 1]
+    # --- Dados de exemplo: classificação binária (2 classes bem separadas) ---
+    # Classe 0: região inferior-esquerda
+    # Classe 1: região superior-direita
     X_train = np.array([
         [1.0, 2.0],   # classe 0
         [1.5, 1.5],   # classe 0
@@ -23,22 +23,22 @@ if __name__ == "__main__":
     ])
  
     Y_train = np.array([
-        [1, 0],  # classe 0
-        [1, 0],  # classe 0
-        [1, 0],  # classe 0
-        [1, 0],  # classe 0
-        [0, 1],  # classe 1
-        [0, 1],  # classe 1
-        [0, 1],  # classe 1
-        [0, 1],  # classe 1
-    ], dtype=float)
+        [0.0],
+        [0.0],
+        [0.0],
+        [0.0],
+        [1.0],
+        [1.0],
+        [1.0],
+        [1.0],
+    ])
  
     # --- Criar rede CPN ---
-    # Entrada: 2 | Oculta: 8 neurônios | Saída: 2 (one-hot)
+    # Entrada: 2 | Oculta: 8 neurônios (1 por padrão) | Saída: 1
     cpn = CounterPropagationNetwork(
         n_input    = 2,
         n_hidden   = 8,
-        n_output   = 2,
+        n_output   = 1,
         lr_instar  = 0.3,
         lr_outstar = 0.3,
     )
@@ -49,8 +49,11 @@ if __name__ == "__main__":
     # --- Fase 2: Treinar Outstar ---
     cpn.train_outstar(X_train, Y_train, epochs=50)
  
-    # --- Relatório completo ---
-    cpn.print_report(X_train, Y_train)
+    # --- Predições ---
+    print("=== Predições ===")
+    Y_pred = cpn.predict_batch(X_train)
+    for i, (x, y_real, y_pred) in enumerate(zip(X_train, Y_train, Y_pred)):
+        print(f"  Entrada: {x} | Esperado: {y_real[0]:.2f} | Predito: {y_pred[0]:.4f}")
  
     # --- Visualizações ---
     cpn.plot_errors()
